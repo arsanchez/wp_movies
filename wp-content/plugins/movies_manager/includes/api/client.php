@@ -77,17 +77,87 @@ class Movies_API_client {
         return implode(' - ', $names);
     }
 
-    public function get_top_actors() {
+    public function get_top_actors($page= 1) {
+        $params  = ['page' => $page];
         $response = wp_remote_get(
-            $this->build_action_url('person/popular')
+            $this->build_action_url('person/popular', $params)
         );
 
         return json_decode($response['body']);
     }
 
+    public function search_actors(&$current_page, &$page_count, $page = 1 , $filter_by, $query = '') {
+        if ($query == '') {
+            $response = $this->get_top_actors($page);
+            $current_page = $response->page;
+            $page_count = $response->total_pages;
+            return $response->results;
+        } elseif ($filter_by == 'movie') {
+            // Checking if the request is cached
+            $cache_key = 'actors_movie_search_'. str_replace(' ', '_', $query);
+            if ($results = wp_cache_get($cache_key)) {
+                $offset = ($page * 20);
+                $paged_results = array_slice($results, $offset, 20);
+
+                return $paged_results;
+            }
+            // Filtering by movie
+            $movies = $this->get_all_movies(1, 'title', $query);
+            $results = [];
+
+            foreach ($movies->results as $movie) {
+                $cast = $this->get_movie_cast($movie->id);
+                $results = array_merge($cast, $results);
+            }
+
+            // Caching the request 
+            $page_count = ceil(count($results) / 20);
+            wp_cache_set($cache_key, $results);
+
+            $offset = ($page * 20);
+            $paged_results = array_slice($results, $offset, 20);
+            return $paged_results;
+        } else {
+            $params  = ['page' => $page, 'query' => $query];
+            $response = wp_remote_get(
+                $this->build_action_url('search/person', $params)
+            );
+            $response = json_decode($response['body']);
+            $current_page = $response->page;
+            $page_count = $response->total_pages;
+            return $response->results;
+        }
+    }
+
+    public function get_actor_details($actor_id) {
+        $response = wp_remote_get(
+            $this->build_action_url('person/' . $actor_id )
+        );
+
+        $details = json_decode($response['body']);
+        return $details;
+    }
+
+    public function get_actor_gallery($actor_id) {
+        $response = wp_remote_get(
+            $this->build_action_url('person/' . $actor_id . '/images')
+        );
+
+        $gallery = json_decode($response['body']);
+        return $gallery;
+    }
+
+    public function get_movie_cast($movie_id) {
+        $response = wp_remote_get(
+            $this->build_action_url('movie/' . $movie_id . '/credits' )
+        );
+        $credits = json_decode($response['body']);
+        return $credits->cast;
+    }
+
     public function get_all_movies($page = 1, $filter_by = '', $value = '') {
         
-        $params  = ['sort_by' => 'original_title.asc', 'page' => $page];
+        $params  = ['sort_by' => 'original_title.asc', 'page' => $page, 'region' => 'us'];
 
         $endpoint = 'discover/movie';
         
@@ -118,7 +188,7 @@ class Movies_API_client {
                     break;
             }
         }
-        // echo $this->build_action_url($endpoint,$params);
+
         $response = wp_remote_get(
             $this->build_action_url($endpoint,$params)
         );
@@ -199,6 +269,17 @@ class Movies_API_client {
             }
         }
 
+        return $movies;
+    }
+
+    public function get_actor_movies($actor_id) {
+        $params  = ['sort_by' => 'release_date.desc', 'with_cast' => $actor_id];
+        
+        $response = wp_remote_get(
+            $this->build_action_url( 'discover/movie', $params)
+        );
+
+        $movies = json_decode($response['body']);
         return $movies;
     }
 }

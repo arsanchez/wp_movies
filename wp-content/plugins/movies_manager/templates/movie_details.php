@@ -8,6 +8,9 @@ $genres = implode(', ', array_map(function ($g) {
 $production_companies = implode(', ', array_map(function ($c) {
     return ($c->name);
 }, $movie->production_companies));
+
+$cast = $client->get_movie_cast($movie->id);
+
 ?>
 <section class="elementor-section elementor-top-section elementor-element elementor-element-41ad8f74 elementor-section-content-middle elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-id="41ad8f74" data-element_type="section">
    <div class="elementor-container elementor-column-gap-no">
@@ -63,6 +66,28 @@ $production_companies = implode(', ', array_map(function ($c) {
       </div>
    </div>
 </section>
+
+<!-- Cast  -->
+<section class="elementor-section elementor-top-section elementor-element elementor-element-cb74a97 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="cb74a97" data-element_type="section">
+   <div class="elementor-container elementor-column-gap-default">
+      <div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-5b01b13" data-id="5b01b13" data-element_type="column">
+         <div class="elementor-widget-wrap elementor-element-populated">
+            <div class="elementor-element elementor-element-69403df elementor-widget elementor-widget-heading" data-id="69403df" data-element_type="widget" data-widget_type="heading.default">
+               <div class="elementor-widget-container">
+                  <style>/*! elementor - v3.6.5 - 27-04-2022 */
+                     .elementor-heading-title{padding:0;margin:0;line-height:1}.elementor-widget-heading .elementor-heading-title[class*=elementor-size-]>a{color:inherit;font-size:inherit;line-height:inherit}.elementor-widget-heading .elementor-heading-title.elementor-size-small{font-size:15px}.elementor-widget-heading .elementor-heading-title.elementor-size-medium{font-size:19px}.elementor-widget-heading .elementor-heading-title.elementor-size-large{font-size:29px}.elementor-widget-heading .elementor-heading-title.elementor-size-xl{font-size:39px}.elementor-widget-heading .elementor-heading-title.elementor-size-xxl{font-size:59px}
+                  </style>
+                  <h2 class="elementor-heading-title elementor-size-default">Cast</h2>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+
+<?php 
+   wpmmanager_render_actors($cast);
+?>
 
 <!-- Related movies -->
 <section class="elementor-section elementor-top-section elementor-element elementor-element-33a13822 elementor-section-full_width elementor-section-content-middle elementor-section-height-default elementor-section-height-default" data-id="33a13822" data-element_type="section">

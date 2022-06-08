@@ -20,7 +20,10 @@ function render_pagination($pages, $current_page) {
 }
 
 function wpmmanager_render_movies($movies, $client,$movies_per_page = 20, $movies_per_row = 4) {
-    
+    if ($movies->results == null) {
+        return;
+    }
+
     echo '<section class="elementor-section elementor-inner-section elementor-element elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-element_type="section">';
 	echo '<div class="elementor-container elementor-column-gap-no">';
 
@@ -57,6 +60,47 @@ function wpmmanager_render_movies($movies, $client,$movies_per_page = 20, $movie
 	echo '</div>';
 	echo '</section>';
 }
+
+function wpmmanager_render_actors($actors,$actors_per_page = 20, $actors_per_row = 4) {
+
+    if ($actors == null) {
+        return;
+    }
+
+    echo '<section class="elementor-section elementor-inner-section elementor-element elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-element_type="section">';
+	echo '<div class="elementor-container elementor-column-gap-no">';
+    
+    $actors_per_page = $actors_per_page > count($actors) ? count($actors) : $actors_per_page;
+
+    for ($i = 0; $i < $actors_per_page; $i++) {
+       $actor = $actors[$i];
+       $photo = ($actor->profile_path != null) ?  'https://image.tmdb.org/t/p/w500/' . $actor->profile_path : "https://via.placeholder.com/500";
+       if ($i%$actors_per_row == 0) {
+        echo '</div>';
+        echo '</section>';
+        echo '<section class="elementor-section elementor-inner-section elementor-element elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-element_type="section">';
+	    echo '<div class="elementor-container elementor-column-gap-no">';
+       }
+
+       echo ' <div class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-40aa3af4" data-id="40aa3af4" data-element_type="column"> ' .
+			    '<div class="elementor-widget-wrap elementor-element-populated">' .
+					'<div class="elementor-element elementor-position-top elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-element_type="widget" data-widget_type="image-box.default">' .
+				        '<div class="elementor-widget-container">' .
+                            '<div class="elementor-image-box-wrapper">' .
+                               '<figure class="elementor-image-box-img"><img width="250" height="250" src="'.$photo.'" class="elementor-animation-grow attachment-full size-full" alt="" loading="lazy"></figure>' .
+                                '<div class="elementor-image-box-content">' .
+                                    '<a href = "' . get_site_url(null, "/actor-details/?actor=" . $actor->id) .'"><h4 class="elementor-image-box-title">' .$actor->name. '</h4></a>'.
+                                '</div>' .
+                            '</div>' .
+                        '</div>' .
+				    '</div>' .
+				'</div>' .
+		    '</div>';
+    }
+	echo '</div>';
+	echo '</section>';
+}
+
 // Adding the shortcodes
 
 // Upcoming movies shortcut
@@ -73,38 +117,10 @@ add_shortcode('wpmmanager_upcoming_movies', 'movie_manager_upcoming_movies');
 function movie_manager_top_actors() {
     $client = new Movies_API_client();
     $actors = $client->get_top_actors();
+
     // Rendering the actors 
+    wpmmanager_render_actors($actors->results,$actors_per_page = 10, $actors_per_row = 5);
 
-    echo '<section class="elementor-section elementor-inner-section elementor-element elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-element_type="section">';
-	echo '<div class="elementor-container elementor-column-gap-no">';
-    
-    for ($i = 0; $i < 10; $i++) {
-       $actor = $actors->results[$i];
-       $photo = ($actor->profile_path != null) ?  'https://image.tmdb.org/t/p/w500/' . $actor->profile_path : "https://via.placeholder.com/500";
-       if ($i%5 == 0) {
-        echo '</div>';
-        echo '</section>';
-        echo '<section class="elementor-section elementor-inner-section elementor-element elementor-section-full_width elementor-section-height-default elementor-section-height-default" data-element_type="section">';
-	    echo '<div class="elementor-container elementor-column-gap-no">';
-       }
-
-       echo ' <div class="elementor-column elementor-col-50 elementor-inner-column elementor-element elementor-element-40aa3af4" data-id="40aa3af4" data-element_type="column"> ' .
-			    '<div class="elementor-widget-wrap elementor-element-populated">' .
-					'<div class="elementor-element elementor-position-top elementor-vertical-align-top elementor-widget elementor-widget-image-box" data-element_type="widget" data-widget_type="image-box.default">' .
-				        '<div class="elementor-widget-container">' .
-                            '<div class="elementor-image-box-wrapper">' .
-                               '<figure class="elementor-image-box-img"><img width="250" height="250" src="'.$photo.'" class="elementor-animation-grow attachment-full size-full" alt="" loading="lazy"></figure>' .
-                                '<div class="elementor-image-box-content">' .
-                                    '<h4 class="elementor-image-box-title">' .$actor->name. '</h4>'.
-                                '</div>' .
-                            '</div>' .
-                        '</div>' .
-				    '</div>' .
-				'</div>' .
-		    '</div>';
-    }
-	echo '</div>';
-	echo '</section>';
 }
 
 add_shortcode('wpmmanager_top_actors', 'movie_manager_top_actors');
@@ -118,7 +134,6 @@ function movie_manager_movie_list() {
     // Rendering the search form
     echo load_movie_template('templates/search.php');
 
-  
     $client = new Movies_API_client();
     $movies = $client->get_all_movies($page, $filter_by, $value);
     $current_page = $movies->page;
@@ -152,7 +167,8 @@ function movie_manager_movie_details() {
                 'trailer' => $trailer, 
                 'alternative_titles' => $client->get_movie_alternative_titles($movie),
                 'reviews' => $reviews,
-                'similar_movies' => $similar_movies
+                'similar_movies' => $similar_movies,
+                'client' => $client
             ]);
         } else {
             echo '<h1>Movie not found</h1>';
@@ -165,3 +181,52 @@ function movie_manager_movie_details() {
 
 add_shortcode('wpmmanager_movie_details', 'movie_manager_movie_details');
 
+// Actors list
+
+function movie_manager_actors_list() {
+    $page = (isset($_GET['movie_page'])) ? $_GET['movie_page'] : 1;
+    $filter_by = (isset($_GET['filter_by'])) ? $_GET['filter_by'] : 'title';
+    $value = (isset($_GET['value'])) ? $_GET['value'] : '';
+
+    // Rendering the search form
+    echo load_movie_template('templates/search_actors.php');
+    
+    $current_page = $page;
+    $page_count = 1;
+    $client = new Movies_API_client();
+    $actors = $client->search_actors($current_page, $page_count, $page, $filter_by, $value);
+
+    // Rendering the actors
+    wpmmanager_render_actors($actors,$actors_per_page = 20, $actors_per_row = 4, );
+
+    // Rendering pagination
+    render_pagination($page_count, $current_page);
+}
+
+add_shortcode('wpmmanager_actors_list', 'movie_manager_actors_list');
+
+// Actor details shortcode 
+function movie_manager_actor_details() {
+    
+    $actor = (isset($_GET['actor'])) ? $_GET['actor'] : false;
+    if ($actor) {
+        $client = new Movies_API_client();
+        $actor_details = $client->get_actor_details($actor);
+        $actor_gallery = $client->get_actor_gallery($actor);
+
+        if ($movie->success !== false) {
+            echo load_movie_template('templates/actor_details.php', [
+                'actor' => $actor_details, 
+                'actor_gallery' => $actor_gallery->profiles,
+                'client' => $client
+            ]);
+        } else {
+            echo '<h1>Actor not found</h1>';
+        }
+    } else {
+        echo '<h1>Actor not found</h1>';
+    }
+
+}
+
+add_shortcode('wpmmanager_actor_details', 'movie_manager_actor_details');

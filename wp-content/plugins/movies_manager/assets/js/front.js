@@ -7,13 +7,14 @@
         } else if (page == 'prev') {
             page =  parseInt($('#movie_page').val()) - 1;
         }
-        console.log(page);
         $('#movie_page').val(page);
         $('#search_btn').trigger('click');
     });
 
-    jQuery('#filter_by').on('changes', function() {
-        $('#movie_page').val(1);
+    jQuery('#search_btn').on('click', function(e) {
+        if ($('#original_value').val() != $('#value').val()) {
+            $('#movie_page').val(1);
+        }
     })
 	
 })( jQuery );

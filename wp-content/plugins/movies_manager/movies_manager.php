@@ -17,11 +17,3 @@ include_once(plugin_dir_path( __FILE__ ) . '/includes/admin.php');
 include_once(plugin_dir_path( __FILE__ ) . '/includes/shortcodes.php');
 include_once(plugin_dir_path( __FILE__ ) . '/includes/front.php');
 
-function search_filter_query( $query, $error = true ) {
-	if ( is_search() ) {
-		$query->is_search = false;
-        var_dump('here');exit();
-	}
-}
-
-add_action( 'parse_query', 'search_filter_query' );
