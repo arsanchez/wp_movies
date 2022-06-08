@@ -1,0 +1,60 @@
+.form-inline {  
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+  }
+  
+  .form-inline label {
+    margin: 5px 10px 5px 0;
+  }
+  
+  .form-inline input {
+    vertical-align: middle;
+    margin: 5px 10px 5px 0;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+  }
+  
+  .form-inline button {
+    padding: 10px 20px;
+    background-color: dodgerblue;
+    border: 1px solid #ddd;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .form-inline button:hover {
+    background-color: royalblue;
+  }
+  
+@media screen 
+  and (min-device-width: 1200px)  { 
+    .form-inline input, .form-inline select {
+        width: 15% !important;
+        margin-left: 20px;
+    }
+      
+    .form-inline button {
+      width: 15% !important;
+    }
+}
+
+/* Pagination styles */
+.movies-pagination {
+  display: flex;
+  justify-content:space-around;
+}
+
+.movies-pagination li {
+    display: inline-block;
+    color: var( --e-global-color-primary );
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.movies-pagination li.disabled {
+  color: grey;
+  text-decoration: none;
+  cursor: default;
+}
