@@ -5,6 +5,7 @@ $movie_page = (isset($_GET['movie_page'])) ? $_GET['movie_page'] : 1;
 ?>
 <form class="form-inline">
    <input type="hidden" value ="<?php echo $movie_page; ?>" id = "movie_page" name = "movie_page">
+   <input type="hidden" value ="<?php echo $value; ?>" id = "original_value" >
   <label for="title">Filter by:</label>
   <select name="filter_by" id ="filter_by">
       <option value="title" <?php echo ($filter_by == 'title') ? 'selected' : ''; ?>>Title</option>

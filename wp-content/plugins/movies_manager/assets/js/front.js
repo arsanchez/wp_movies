@@ -2,6 +2,7 @@
     // Pagination click listener 
     $('.movies-pagination li:not(.disabled)').on('click', function() {
         let page = $(this).data('page');
+        
         if (page == 'next') {
             page =  parseInt($('#movie_page').val()) + 1;
         } else if (page == 'prev') {
